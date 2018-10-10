@@ -1,0 +1,149 @@
+import pickle
+import sys
+from PyQt5.QtWidgets import (QWidget, QPushButton,
+    QHBoxLayout, QVBoxLayout, QApplication, QLabel,
+    QComboBox, QTextEdit, QLineEdit)
+from PyQt5.QtCore import Qt
+
+
+class ScoreDB(QWidget):
+
+    def __init__(self):
+        super().__init__()
+        self.initUI()
+        self.dbfilename = 'assignment6.dat'
+        self.scoredb = []
+        self.readScoreDB()
+        self.showScoreDB()
+
+    def initUI(self):
+        name = QLabel("Name: ")
+        age = QLabel("Age: ")
+        score = QLabel("Score: ")
+
+        self.nameEdit = QLineEdit()
+        self.ageEdit = QLineEdit()
+        self.scoreEdit = QLineEdit()
+
+        firsthbox = QHBoxLayout()
+        firsthbox.addStretch(1)
+        firsthbox.addWidget(name)
+        firsthbox.addWidget(self.nameEdit)
+        firsthbox.addWidget(age)
+        firsthbox.addWidget(self.ageEdit)
+        firsthbox.addWidget(score)
+        firsthbox.addWidget(self.scoreEdit)
+
+        amount = QLabel("Amount:")
+        key = QLabel("Key: ")
+
+        self.amountEdit = QLineEdit()
+        self.keycombo = QComboBox()
+        self.keycombo.addItems(["Name", "Age", "Score"])
+
+        secondhbox = QHBoxLayout()
+        secondhbox.addStretch(1)
+        secondhbox.addWidget(amount)
+        secondhbox.addWidget(self.amountEdit)
+        secondhbox.addWidget(key)
+        secondhbox.addWidget(self.keycombo)
+
+        addButton = QPushButton("Add")
+        delButton = QPushButton("Del")
+        findButton = QPushButton("Find")
+        incButton = QPushButton("Inc")
+        showButton = QPushButton("Show")
+
+        thirdhbox = QHBoxLayout()
+        thirdhbox.addStretch(1)
+        thirdhbox.addWidget(addButton)
+        thirdhbox.addWidget(delButton)
+        thirdhbox.addWidget(findButton)
+        thirdhbox.addWidget(incButton)
+        thirdhbox.addWidget(showButton)
+
+        result = QLabel("Result:")
+
+        self.resultText = QTextEdit(self)
+
+        vbox = QVBoxLayout()
+        vbox.addStretch(1)
+        vbox.addLayout(firsthbox)
+        vbox.addLayout(secondhbox)
+        vbox.addLayout(thirdhbox)
+        vbox.addWidget(result)
+        vbox.addWidget(self.resultText)
+
+        self.setLayout(vbox)
+
+        self.setGeometry(300, 300, 500, 250)
+        self.setWindowTitle('Assignment6')
+        self.show()
+
+
+        addButton.clicked.connect(self.addButtonclicked)
+        delButton.clicked.connect(self.delButtonclicked)
+        findButton.clicked.connect(self.findButtonclicked)
+        incButton.clicked.connect(self.incButtonclicked)
+        showButton.clicked.connect(self.showScoreDB)
+
+    def incButtonclicked(self):
+        for kv in self.scoredb:
+            if kv['Name'] == self.nameEdit.text():
+                kv['Score'] += int(self.amountEdit.text())
+        self.showScoreDB()
+
+    def findButtonclicked(self):
+        self.resultText.clear()
+        key = self.keycombo.currentText()
+        person = [p for p in self.scoredb if p['Name'] == self.nameEdit.text()]
+        sorted_DB = sorted(person, key=lambda person: person[key])
+        for kv in sorted_DB:
+            info = ''
+            sorted_kv = sorted(kv)
+            for attr in sorted_kv:
+                info += (attr + "=" + str(kv[attr]) + ' ')
+            self.resultText.append(info)
+
+    def delButtonclicked(self):
+        try:
+            for delete in self.scoredb[::-1]:
+                if delete['Name'] == self.nameEdit.text():
+                    self.scoredb.remove(delete)
+            self.showScoreDB()
+        except IndexError as e:
+            self.resultText.setText('IndexError')
+
+    def addButtonclicked(self):
+        try:
+            self.scoredb += [{'Age' : int(self.ageEdit.text()), 'Name' : self.nameEdit.text(), 'Score' : int(self.scoreEdit.text())}]
+            self.showScoreDB()
+        except IndexError as e:
+            self.resultText.setText('IndexError')
+        except ValueError as s:
+            self.resultText.setText('ValueError')
+
+    def closeEvent(self, event):
+        self.writeScoreDB()
+
+    def readScoreDB(self):
+        try:
+            fH = open(self.dbfilename, 'rb')
+        except FileNotFoundError as e:
+            #print(e)
+            self.scoredb = []
+            return
+
+        try:
+            self.scoredb =  pickle.load(fH)
+        except:
+            print("Emptry DB: ", self.dbfilename)
+        else:
+            print("Open DB: ", self.dbfilename)
+        finally:
+            pass
+        fH.close()
+
+
+    # write the data into person db
+    def writeScore

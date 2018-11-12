@@ -1,0 +1,30 @@
+class Guess:
+
+    def __init__(self, word):
+        self.secretword = word
+        self.guessedChar = ''
+        self.guessedChars=[]
+        self.numTries = 0
+        self.Tries = 0
+        self.currentStatus = []
+        for i in range(len(word)):
+            self.currentStatus.append('_')
+    def display(self):
+            print('현재 상황 : ' + ''.join(self.currentStatus))
+            print("시도 횟수 :" ,self.numTries)
+            print("사용한 글자: "+ ' '.join(self.guessedChars))
+            if(self.Tries>0) :
+                print("적중률 :", (self.Tries-self.numTries)/self.Tries*100,"%")
+    def guess(self, character):
+        if character in self.secretword:
+            for i in range(len(self.secretword)):
+                if self.secretword[i] == character:
+                    self.currentStatus[i] = character
+            self.guessedChars.append(self.guessedChar)
+            self.Tries += 1
+            if self.secretword == ''.join(self.currentStatus):
+                return True
+        else:
+            self.Tries += 1
+            self.numTries += 1
+            self.guessedChars.append(character)

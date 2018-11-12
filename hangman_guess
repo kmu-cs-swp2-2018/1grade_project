@@ -2,7 +2,6 @@ class Guess:
 
     def __init__(self, word):
         self.secretword = word
-        self.guessedChar = ''
         self.guessedChars=[]
         self.numTries = 0
         self.Tries = 0
@@ -20,7 +19,7 @@ class Guess:
             for i in range(len(self.secretword)):
                 if self.secretword[i] == character:
                     self.currentStatus[i] = character
-            self.guessedChars.append(self.guessedChar)
+            self.guessedChars.append(character)
             self.Tries += 1
             if self.secretword == ''.join(self.currentStatus):
                 return True
